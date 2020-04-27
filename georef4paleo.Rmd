@@ -64,21 +64,20 @@ records_georef <- processed_idb %>%
   nrow()
 ```
 
-Our data here are comprised of **57 provider datasets** representing a total of **`r format(records_total, big.mark = ",")` specimen records**. Here is an example of what the raw provider data look like:
+Our data here are comprised of **57 provider datasets** representing a total of **`r format(records_total, big.mark = ",")` specimen records**.
 
 ```{r}
-knitr::kable(head(raw_idb)) %>% 
+knitr::kable(head(raw_idb), caption = "Example of what the raw provider data look like") %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "400px")
 ```
 
-\vspace{5em}
-
-And here's an example of what the data look like after being processed by iDigBio:
+&nbsp;
+&nbsp;
 
 ```{r}
-knitr::kable(head(processed_idb)) %>% 
+knitr::kable(head(processed_idb), caption = "Example of what the data look like after being processed by iDigBio") %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "400px")
@@ -123,7 +122,7 @@ georef_timeline <- raw_idb %>%
 
 ![Presence/absence of georeferencing terms in use by paleo collections providing data to GBIF](gbifplaceholder1.png)
 
-\vspace{2em}
+&nbsp;
 
 ![Frequency of georeferencing terms in use by paleo collections providing data to GBIF](gbifplaceholder2.png)
 
@@ -245,6 +244,7 @@ ggsave("percSummary_plot.png", width = 9, height = 6, units = "in")
 ```
 
 ![](percSummary_plot.png)
+
 ------
 
 ### How are standard terms being used?
@@ -295,17 +295,19 @@ precision <- raw_idb %>%
   rename(count = n)
 ```
 
-\vspace{2em}
+&nbsp;
 
-Precision is an essential concept for paleo collections because reducing precision (typically by truncating decimals) is a common method we use to obscure locality data when sharing it widely. Let's summarize the precision of our data here:
+Precision is an essential concept for paleo collections because reducing precision (typically by truncating decimals) is a common method we use to obscure locality data when sharing it widely.
 
 ```{r}
-knitr::kable(precision) %>% 
+knitr::kable(precision, caption = "Summary of precision in georeferenced data") %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive",
                            fixed_thead = TRUE)) %>% 
   scroll_box(width = "50%", height = "200px")
 ```
+
+&nbsp;
 
 ------
 
@@ -334,11 +336,13 @@ wordcloud(words = geodeticDatum$value,
 
 ```{r}
 
-knitr::kable(geodeticDatum) %>% 
+knitr::kable(geodeticDatum, caption = "Unique values present in the dwc:geodeticDatum field") %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "200px")
 ```
+
+&nbsp;
 
 ------
 
@@ -366,12 +370,14 @@ wordcloud(words = georeferenceProtocol$value,
 ![](georeferenceProtocol.png)
 
 ```{r}
-knitr::kable(georeferenceProtocol) %>% 
+knitr::kable(georeferenceProtocol, caption = "Unique values present in the dwc:georeferenceProtocol field") %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "200px")
 
 ```
+
+&nbsp;
 
 ------
 
@@ -399,12 +405,13 @@ wordcloud(words = georeferenceSources$value,
 ![](georeferenceSources.png)
 
 ```{r}
-knitr::kable(georeferenceSources, caption = "Title of the table") %>% 
-  column_spec(1:2, width = "1in", include_thead = TRUE) %>% 
+knitr::kable(georeferenceSources, caption = "Unique values present in the dwc:georeferenceSources field") %>% 
   kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "200px") 
 ```
+
+&nbsp;
 
 ------
 
