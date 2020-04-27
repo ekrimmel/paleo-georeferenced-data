@@ -1,0 +1,112 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+EXTRA
+
+```{r}
+paleo <- idig_search_records(rq=list(basisofrecord="fossilspecimen",
+                    geopoint=list(type="exists")),
+                    fields=c("uuid",
+                             "recordset",
+                             "institutioncode", "data.dwc:institutionCode",
+                             "continent", "data.dwc:continent",
+                             "country", "data.dwc:country",
+                             "countrycode", "data.dwc:countryCode",
+                             "stateprovince", "data.dwc:stateProvince",
+                             "locality", "data.dwc:locality",
+                             "geopoint", "data.dwc:decimalLongitude", "data.dwc:decimalLatitude",
+                             "data.dwc:geodeticDatum",
+                             "data.dwc:georeferenceProtocol",
+                             "data.dwc:georeferenceSources",
+                             "data.dwc:georeferencedDate",
+                             "data.dwc:georeferencedBy",
+                             "data.dwc:georeferenceRemarks",
+                             "data.dwc:verbatimElevation",
+                             "data.dwc:minimumElevationInMeters",
+                             "data.dwc:maximumElevationInMeters",
+                             "data.dwc:geologicalContextID",
+                             "earliesteonorlowesteonothem", "data.dwc:earliestEonOrLowestEonothem",
+                             "latesteonorhighesteonothem", "data.dwc:latestEonOrHighestEonothem",
+                             "earliesteraorlowesterathem", "data.dwc:earliestEraOrLowestErathem",
+                             "latesteraorhighesterathem", "data.dwc:latestEraOrHighestErathem",
+                             "earliestperiodorlowestsystem", "data.dwc:earliestPeriodOrLowestSystem",
+                             "latestperiodorhighestsystem", "data.dwc:latestPeriodOrHighestSystem",
+                             "earliestepochorlowestseries", "data.dwc:earliestEpochOrLowestSeries",
+                             "latestepochorhighestseries", "data.dwc:latestEpochOrHighestSeries",
+                             "earliestageorloweststage", "data.dwc:earliestAgeOrLowestStage",
+                             "latestageorhigheststage", "data.dwc:latestAgeOrHighestStage",
+                             "lowestbiostratigraphiczone", "data.dwc:lowestBiostratigraphicZone",
+                             "highestbiostratigraphiczone", "data.dwc:highestBiostratigraphicZone",
+                             "data.dwc:lithostratigraphicTerms",
+                             "group", "data.dwc:group",
+                             "formation", "data.dwc:formation",
+                             "member", "data.dwc:member",
+                             "bed", "data.dwc:bed",
+                             "kingdom", "data.dwc:kingdom",
+                             "phylum", "data.dwc:phylum",
+                             "class", "data.dwc:class",
+                             "order", "data.dwc:order",
+                             "family", "data.dwc:family",
+                             "genus", "data.dwc:genus",
+                             "data.dwc:subgenus",
+                             "specificepithet", "data.dwc:specificEpithet",
+                             "infraspecificepithet", "data.dwc:infraspecificEpithet",
+                             "scientificname", "data.dwc:scientificName",
+                             "taxonrank", "data.dwc:taxonRank",
+                             "highertaxon",
+                             "data.dwc:informationWithheld",
+                             "data.dwc:dataGeneralizations",
+                             "flags"),
+                    limit = 100000)
+
+wksp_recordsets <- c("2c2cc29c-3572-4568-a129-c8cbec34ccbe",
+                     "1ba0bbad-28a7-4c50-8992-a028f79d1dc5",
+                     "271a9ce9-c6d3-4b63-a722-cb0adc48863f",
+                     "5ab348ab-439a-4697-925c-d6abe0c09b92",
+                     "5082e6c8-8f5b-4bf6-a930-e3e6de7bf6fb",
+                     "3c9420c9-c4a8-47dc-88b7-b5638ca5e716",
+                     "62c310ac-e1ff-47bc-860d-0471a84ed0d3",
+                     "6c6f34ed-58a4-4ba2-b9c7-34524f79a349",
+                     "b26fa674-6300-4ea0-a8e3-fc0ce32b5226",
+                     "7b0809fb-fd62-4733-8f40-74ceb04cbcac",
+                     "d621e959-2633-4ec1-a2a2-5d97cd818b47",
+                     "95ecb448-3c1f-4145-8565-4f6d51beb62c",
+                     "71e55d91-4c0c-4a13-9421-c732348b0a47",
+                     "667c2736-bcd3-4a6a-abf4-db5d2dc815c4",
+                     "7ae4d15d-62e2-459b-842a-446f921b9d3f",
+                     "6e5548ba-77a9-43e0-b913-0a5ad1b2e4b2",
+                     "f9a33279-d6ba-41c7-a511-ef6adfcb6e20",
+                     "84c24d87-e4ad-4165-8e86-5ae1a249c196",
+                     "9e66257f-21a9-491a-ac23-06b7b62ceeb7",
+                     "b1f0612a-bc21-424f-b9c1-3bba69ad4f54",
+                     "1ebb0c8e-31f2-4564-b75d-65196bee4f09",
+                     "137ed4cd-5172-45a5-acdb-8e1de9a64e32",
+                     "0220907a-0463-4ae0-8a0b-77f5e80fff40",
+                     "9835e4d7-a817-430f-9f55-5fc3325e4399",
+                     "0e162e0a-bf3e-4710-9357-44258ca12abb")
+```
+
+### Extra
+
+```{r warning = FALSE, message = FALSE}
+# Pull field names from `idb_raw` for easier viewing
+raw_fields <- colnames(raw_idb) %>% 
+  as_tibble() %>% 
+  arrange(value)
+
+# Pull field names from `idb_processed` for easier viewing
+processed_fields <- colnames(processed_idb) %>% 
+  as_tibble() %>% 
+  arrange(value)
+
+# Compare which fields are present in which data sources
+```
+```{r}
+knitr::kable(raw_fields) %>% 
+    kable_styling(bootstrap_options = 
+                         c("striped", "hover", "condensed", "responsive",
+                           full_width = FALSE)) %>% 
+  scroll_box(width = "50%", height = "200px")
+```
