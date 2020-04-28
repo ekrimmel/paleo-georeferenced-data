@@ -14,11 +14,11 @@ output:
 
 ------
 
-Our goal here is to explore the georeferenced data that paleontological collections are currently providing to iDigBio. In particular, we want to know...
+This document was prepared for the virtual workshop, [Georeferencing for Paleo: Refreshing the approach to fossil localities](https://tdwg.github.io/esp/georeferencing/2020-workshop). Our goal here is to explore the georeferenced data that paleontological collections are currently providing to biodiversity data aggregators, namely iDigBio and GBIF. In particular, we want to know...
 
-1. How prevalent is georeferencing in our data?
-1. What standard terms are in use?
-1. How are standard terms being used?
+1. How prevalent is georeferencing in our data? (_Workshop Day 1_)
+1. What standard terms are in use?  (_Workshop Day 1_)
+1. How are standard terms being used? (_Workshop Day 2_)
 
 ```{r warning = FALSE, message = FALSE}
 # Load core libraries; install these packages if you have not already
@@ -30,10 +30,9 @@ library(wordcloud)
 library(kableExtra)
 ```
 ```{r global_options, include = FALSE}
-# Set global chunk options for knitr
-knitr::opts_chunk$set(warning = FALSE, 
+# Set global chunk options
+knitr::opts_chunk$set(warning = FALSE,
                       message = FALSE,
-                      echo = FALSE,
                       results = 'asis')
 ```
 
@@ -41,9 +40,9 @@ knitr::opts_chunk$set(warning = FALSE,
 
 #### What data are we looking at?
 
-Data in this example was downloaded from iDigBio on 2020-02-04 using the query: `basisofrecord` = "fossilspecimen." A data download from iDigBio includes both the raw data, as published by the data provider (e.g. the collection), and a second version of the same data which has been processed by iDigBio. You can learn more about what the difference between raw and processed recordsets contained in an iDigBio data download in [this blog post](https://www.idigbio.org/content/understanding-idigbios-data-downloads).
+Data in this example (unless otherwise noted) was downloaded from iDigBio on 2020-02-04 using the query: `basisofrecord` = "fossilspecimen." A data download from iDigBio includes both the raw data, as published by the data provider (e.g. the collection), and a second version of the same data which has been processed by iDigBio. You can learn more about what the difference between raw and processed recordsets contained in an iDigBio data download in [this blog post](https://www.idigbio.org/content/understanding-idigbios-data-downloads).
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Read into R the raw occurrence data, which should be whatever was published by
 # the data provider (e.g. the collection)
 raw_idb <- read_csv("4336327f-dae0-4877-9d6d-460cb3a6ef13/occurrence_raw.csv", 
@@ -66,8 +65,12 @@ records_georef <- processed_idb %>%
 
 Our data here are comprised of **57 provider datasets** representing a total of **`r format(records_total, big.mark = ",")` specimen records**.
 
-```{r}
-knitr::kable(head(raw_idb), caption = "Example of what the raw provider data look like") %>% 
+<center> _Example of what the raw provider data look like_ </center>
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(head(raw_idb)) %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "400px")
@@ -76,8 +79,12 @@ knitr::kable(head(raw_idb), caption = "Example of what the raw provider data loo
 &nbsp;
 &nbsp;
 
-```{r}
-knitr::kable(head(processed_idb), caption = "Example of what the data look like after being processed by iDigBio") %>% 
+<center> _Example of what the data look like after being processed by iDigBio_ </center>
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(head(processed_idb)) %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive")) %>% 
   scroll_box(width = "100%", height = "400px")
@@ -85,14 +92,15 @@ knitr::kable(head(processed_idb), caption = "Example of what the data look like 
 
 ------
 
-### How prevalent is georeferencing in our data??
+### 1. How prevalent is georeferencing in our data??
 
 ------
 
 Of these records, **`r round(sum(records_georef/records_total*100), 1)`% are georeferenced**. The majority of this georeferencing has been done in the recent past.
 
-```{r warning = FALSE, message = FALSE}
-# When were records georeferenced?
+```{r}
+# Collate data about when records were georeferenced, based on data provided
+# in the column `data.dwc:georeferencedDate`
 georef_timeline <- raw_idb %>% 
   select(`dwc:georeferencedDate`) %>% 
   filter(!is.na(`dwc:georeferencedDate`) & `dwc:georeferencedDate` != "") %>%
@@ -105,6 +113,7 @@ georef_timeline <- raw_idb %>%
   tally() %>%
   filter(nchar(year) == 4 & year > 2000 & year < 2021)
 
+# Plot `georef_timeline`
  ggplot(georef_timeline, aes(x = year, y = n)) + 
    geom_bar(stat = "identity", fill = "steelblue") +
    ggtitle("Timeline of when paleo records on iDigBio were georeferenced") +
@@ -114,79 +123,104 @@ georef_timeline <- raw_idb %>%
 
 ------
 
-### What standard terms are in use?
+### 2. What standard terms are in use?
 
 ------
 
 #### At the recordset level
 
-![Presence/absence of georeferencing terms in use by paleo collections providing data to GBIF](gbifplaceholder1.png)
+Data for the figure below were downloaded from GBIF on 2020-04-23 using the query: `basisofrecord` = "fossil" ([doi.org/10.15468/dl.7nnj39](https://doi.org/10.15468/dl.7nnj39)). This dataset includes **1,1665,493 specimen records** provided by **>90 collections**.
+
+![](gbif_dwc-a-xml.png)
+
+<center> _Presence/absence of georeferencing terms in use by paleo collections providing data to GBIF_ </center>
 
 &nbsp;
 
-![Frequency of georeferencing terms in use by paleo collections providing data to GBIF](gbifplaceholder2.png)
+In the figure above, data providers are columns and Darwin Core fields are rows. Green indicates the presence of a particular Darwin Core field in data published by a provider, though the fact that a field is present does not necessarily mean that there are values in it. The takeaway from this figure is that **only three standard Darwin Core fields related to georeferencing are in use by the majority of data providers**. The top fields used by paleo collections providing data to GBIF are:
+
+1. **dwc:decimalLatitude** and **dwc:decimalLongitude** (in use by 78% of data providers)
+1. **dwc:geodeticDatum** (in use by 70% of data providers)
+1. **dwc:coordinateUncertaintyInMeters** (in use by 57% of data providers)
+1. **dwc:georeferenceRemarks** (in use by 48% of data providers)
+1. **dwc:georeferencedBy** (in use by 42% of data providers)
 
 ------
 
 #### At the record level
 
-```{r warning = FALSE, message = FALSE}
+Data for the figure below is from the iDigBio dataset introduced at the beginning of this document.
+
+```{r}
 # Summarize frequency of metadata for georeference data
 perc_geodeticDatum <- raw_idb %>% 
   select(`dwc:geodeticDatum`) %>% 
   filter(!is.na(`dwc:geodeticDatum`) & `dwc:geodeticDatum` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_coordinateUncertaintyInMeters <- raw_idb %>% 
   select(`dwc:coordinateUncertaintyInMeters`) %>% 
-  filter(!is.na(`dwc:coordinateUncertaintyInMeters`) & `dwc:coordinateUncertaintyInMeters` != "") %>% 
+  filter(!is.na(`dwc:coordinateUncertaintyInMeters`) & 
+           `dwc:coordinateUncertaintyInMeters` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_coordinatePrecision <- raw_idb %>% 
   select(`dwc:coordinatePrecision`) %>% 
   filter(!is.na(`dwc:coordinatePrecision`) & `dwc:coordinatePrecision` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferencedBy <- raw_idb %>% 
   select(`dwc:georeferencedBy`) %>% 
   filter(!is.na(`dwc:georeferencedBy`) & `dwc:georeferencedBy` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferencedDate <- raw_idb %>% 
   select(`dwc:georeferencedDate`) %>% 
   filter(!is.na(`dwc:georeferencedDate`) & `dwc:georeferencedDate` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferenceProtocol <- raw_idb %>% 
   select(`dwc:georeferenceProtocol`) %>% 
   filter(!is.na(`dwc:georeferenceProtocol`) & `dwc:georeferenceProtocol` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferenceSources <- raw_idb %>% 
   select(`dwc:georeferenceSources`) %>% 
   filter(!is.na(`dwc:georeferenceSources`) & `dwc:georeferenceSources` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferenceVerificationStatus <- raw_idb %>% 
   select(`dwc:georeferenceVerificationStatus`) %>% 
-  filter(!is.na(`dwc:georeferenceVerificationStatus`) & `dwc:georeferenceVerificationStatus` != "") %>% 
+  filter(!is.na(`dwc:georeferenceVerificationStatus`) & 
+           `dwc:georeferenceVerificationStatus` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_georeferenceRemarks <- raw_idb %>% 
   select(`dwc:georeferenceRemarks`) %>% 
   filter(!is.na(`dwc:georeferenceRemarks`) & `dwc:georeferenceRemarks` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_dataGeneralizations <- raw_idb %>% 
   select(`dwc:dataGeneralizations`) %>% 
   filter(!is.na(`dwc:dataGeneralizations`) & `dwc:dataGeneralizations` != "") %>% 
   nrow()
 
+# Summarize frequency of metadata for georeference data
 perc_informationWithheld <- raw_idb %>% 
   select(`dwc:informationWithheld`) %>% 
   filter(!is.na(`dwc:informationWithheld`) & `dwc:informationWithheld` != "") %>% 
   nrow()
 
+# Collate summary data into a single data frame
 percSummary <- tribble(
   ~field, 
   ~yes, 
@@ -225,6 +259,7 @@ percSummary <- tribble(
   perc_informationWithheld, 
   sum(records_total-perc_informationWithheld))
 
+# Plot `percSummary`
 percSummary_plot <- percSummary %>% 
   pivot_longer(-field, names_to = "inUse", values_to = "count") %>%
   group_by(field) %>% 
@@ -234,12 +269,13 @@ percSummary_plot <- percSummary %>%
   geom_bar(stat = "identity", color = "black") +
   coord_polar(theta = "y") +
   facet_wrap(~field) +
-  labs(title = "Percentage of records using georeference metadata fields",
+  labs(title = "Percentage of records with values in georeference metadata fields",
        fill = "In use?") +
   theme_void() +
   theme(plot.title = element_text(margin = margin(10, 0, 10, 0))) +
   scale_fill_manual(values = c("white", "steelblue"))
 
+# Save `percSummary_plot` as a file
 ggsave("percSummary_plot.png", width = 9, height = 6, units = "in")
 ```
 
@@ -247,17 +283,132 @@ ggsave("percSummary_plot.png", width = 9, height = 6, units = "in")
 
 ------
 
-### How are standard terms being used?
+### 3. How are standard terms being used?
+
+------
+
+#### Geodetic Datum
+
+![](geodeticdatum.png)
+
+```{r}
+# Determine unique values for `dwc:geodeticDatum`
+geodeticDatum <- raw_idb %>% 
+  group_by(`dwc:geodeticDatum`) %>% 
+  filter(!is.na(`dwc:geodeticDatum`) & `dwc:geodeticDatum` != "") %>% 
+  tally() %>% 
+  arrange(desc(n)) %>% 
+  rename(value = `dwc:geodeticDatum`)
+
+# Generate wordcloud based on frequency of values
+wordcloud(words = geodeticDatum$value, 
+          freq = geodeticDatum$n, 
+          min.freq = 1,
+          max.words = 200,
+          random.order = FALSE,
+          rot.per = 0.25,
+          colors = brewer.pal(8, "Dark2"))
+```
+
+_Unique values present in the `dwc:geodeticDatum` field_
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(geodeticDatum) %>% 
+    kable_styling(bootstrap_options = 
+                         c("striped", "hover", "condensed", "responsive")) %>% 
+  scroll_box(width = "100%", height = "200px")
+```
+
+&nbsp;
+
+------
+
+#### Georeference Protocol
+
+![](georeferenceProtocol.png)
+
+```{r}
+# Determine unique values for `dwc:georeferenceProtocol`
+georeferenceProtocol <- raw_idb %>% 
+  group_by(`dwc:georeferenceProtocol`) %>% 
+  filter(!is.na(`dwc:georeferenceProtocol`) & `dwc:georeferenceProtocol` != "") %>% 
+  tally() %>% 
+  arrange(desc(n)) %>% 
+  rename(value = `dwc:georeferenceProtocol`)
+
+# Generate wordcloud based on frequency of values
+wordcloud(words = georeferenceProtocol$value, 
+          freq = georeferenceProtocol$n, 
+          min.freq = 1,
+          max.words = 200,
+          random.order = FALSE,
+          rot.per = 0.25,
+          colors = brewer.pal(8, "Dark2"))
+```
+
+_Unique values present in the `dwc:georeferenceProtocol` field_
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(georeferenceProtocol) %>% 
+    kable_styling(bootstrap_options = 
+                         c("striped", "hover", "condensed", "responsive")) %>% 
+  scroll_box(width = "100%", height = "200px")
+
+```
+
+&nbsp;
+
+------
+
+#### Georeference Sources
+
+![](georeferenceSources.png)
+
+```{r}
+# DEtermine unique values for `dwc:georeferenceSources`
+georeferenceSources <- raw_idb %>% 
+  group_by(`dwc:georeferenceSources`) %>% 
+  filter(!is.na(`dwc:georeferenceSources`) & `dwc:georeferenceSources` != "") %>% 
+  tally() %>% 
+  arrange(desc(n)) %>% 
+  rename(value = `dwc:georeferenceSources`)
+
+# Generate wordcloud based on frequency of values
+wordcloud(words = georeferenceSources$value, 
+          freq = georeferenceSources$n, 
+          min.freq = 1,
+          max.words = 200,
+          random.order = FALSE,
+          rot.per = 0.25,
+          colors = brewer.pal(8, "Dark2"))
+```
+
+_Unique values present in the `dwc:georeferenceSources` field_
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(georeferenceSources) %>% 
+  kable_styling(bootstrap_options = 
+                         c("striped", "hover", "condensed", "responsive")) %>% 
+  scroll_box(width = "100%", height = "200px") 
+```
+
+&nbsp;
 
 ------
 
 #### Precision
 
-Let's take a more detailed look at these data, starting with assessing the precision of coordinates provided. When we talk about _precision_ in this context we mean "the number of digits after the decimal point on a latitude or longitude that is recorded in decimal degrees." Precision is a measure of the exactness of the latitude and longitude coordinates compared to reality. This comic illustrates the concept of precision well:
+Let's take a more detailed look at the precision of coordinates provided. When we talk about _precision_ in this context we mean "the number of digits after the decimal point on a latitude or longitude that is recorded in decimal degrees." Precision is a measure of the exactness of the latitude and longitude coordinates compared to reality. This comic illustrates the concept of precision well:
 
-![Image credit: xkcd](https://imgs.xkcd.com/comics/coordinate_precision.png)
+![_Image credit: xkcd_](https://imgs.xkcd.com/comics/coordinate_precision.png)
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Summarize precision for all records
 precision <- raw_idb %>% 
   select(`dwc:decimalLatitude`, `dwc:decimalLongitude`) %>% 
@@ -299,8 +450,12 @@ precision <- raw_idb %>%
 
 Precision is an essential concept for paleo collections because reducing precision (typically by truncating decimals) is a common method we use to obscure locality data when sharing it widely.
 
-```{r}
-knitr::kable(precision, caption = "Summary of precision in georeferenced data") %>% 
+_Summary of precision in georeferenced data, determined from coordinate fields_
+
+&nbsp;
+
+```{r echo = FALSE}
+knitr::kable(precision) %>% 
     kable_styling(bootstrap_options = 
                          c("striped", "hover", "condensed", "responsive",
                            fixed_thead = TRUE)) %>% 
@@ -311,113 +466,9 @@ knitr::kable(precision, caption = "Summary of precision in georeferenced data") 
 
 ------
 
-#### Geodetic Datum
-
-```{r warning = FALSE, message = FALSE}
-# Unique values for `dwc:geodeticDatum`
-geodeticDatum <- raw_idb %>% 
-  group_by(`dwc:geodeticDatum`) %>% 
-  filter(!is.na(`dwc:geodeticDatum`) & `dwc:geodeticDatum` != "") %>% 
-  tally() %>% 
-  arrange(desc(n)) %>% 
-  rename(value = `dwc:geodeticDatum`)
-
-# Generate wordcloud based on frequency of values
-wordcloud(words = geodeticDatum$value, 
-          freq = geodeticDatum$n, 
-          min.freq = 1,
-          max.words = 200,
-          random.order = FALSE,
-          rot.per = 0.25,
-          colors = brewer.pal(8, "Dark2"))
-```
-
-![](geodeticdatum.png)
-
-```{r}
-
-knitr::kable(geodeticDatum, caption = "Unique values present in the dwc:geodeticDatum field") %>% 
-    kable_styling(bootstrap_options = 
-                         c("striped", "hover", "condensed", "responsive")) %>% 
-  scroll_box(width = "100%", height = "200px")
-```
-
-&nbsp;
-
-------
-
-#### Georeference Protocol
-
-```{r warning = FALSE, message = FALSE}
-# Unique values for `dwc:georeferenceProtocol`
-georeferenceProtocol <- raw_idb %>% 
-  group_by(`dwc:georeferenceProtocol`) %>% 
-  filter(!is.na(`dwc:georeferenceProtocol`) & `dwc:georeferenceProtocol` != "") %>% 
-  tally() %>% 
-  arrange(desc(n)) %>% 
-  rename(value = `dwc:georeferenceProtocol`)
-
-# Generate wordcloud based on frequency of values
-wordcloud(words = georeferenceProtocol$value, 
-          freq = georeferenceProtocol$n, 
-          min.freq = 1,
-          max.words = 200,
-          random.order = FALSE,
-          rot.per = 0.25,
-          colors = brewer.pal(8, "Dark2"))
-```
-
-![](georeferenceProtocol.png)
-
-```{r}
-knitr::kable(georeferenceProtocol, caption = "Unique values present in the dwc:georeferenceProtocol field") %>% 
-    kable_styling(bootstrap_options = 
-                         c("striped", "hover", "condensed", "responsive")) %>% 
-  scroll_box(width = "100%", height = "200px")
-
-```
-
-&nbsp;
-
-------
-
-#### Georeference Sources
-
-```{r warning = FALSE, message = FALSE}
-# Unique values for `dwc:georeferenceSources`
-georeferenceSources <- raw_idb %>% 
-  group_by(`dwc:georeferenceSources`) %>% 
-  filter(!is.na(`dwc:georeferenceSources`) & `dwc:georeferenceSources` != "") %>% 
-  tally() %>% 
-  arrange(desc(n)) %>% 
-  rename(value = `dwc:georeferenceSources`)
-
-# Generate wordcloud based on frequency of values
-wordcloud(words = georeferenceSources$value, 
-          freq = georeferenceSources$n, 
-          min.freq = 1,
-          max.words = 200,
-          random.order = FALSE,
-          rot.per = 0.25,
-          colors = brewer.pal(8, "Dark2"))
-```
-
-![](georeferenceSources.png)
-
-```{r}
-knitr::kable(georeferenceSources, caption = "Unique values present in the dwc:georeferenceSources field") %>% 
-  kable_styling(bootstrap_options = 
-                         c("striped", "hover", "condensed", "responsive")) %>% 
-  scroll_box(width = "100%", height = "200px") 
-```
-
-&nbsp;
-
-------
-
 ### What kind of values do we see in other metadata fields?
 
-Possible fields to look at:
+**Possible fields to look at:**
 
 - dwc:georeferencedBy
 - dwc:georeferenceRemarks
@@ -439,7 +490,7 @@ Possible fields to look at:
 - dwc:verbatimLongitude
 - dwc:verbatimSRS
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Unique values ? for...
 
 # dwc:georeferencedBy
@@ -467,7 +518,7 @@ Possible fields to look at:
 
 ### What can we say about localities?
 
-Possible geographic fields to look at:
+**Possible geographic fields to look at:**
 
 - dwc:geologicalContextID
 - dwc:lithostratigraphicTerms
@@ -478,7 +529,7 @@ Possible geographic fields to look at:
 - dwc:locationID
 - dwc:locationRemarks
 
-Possible lithostratigraphic fields to look at:
+**Possible lithostratigraphic fields to look at:**
 
 - dwc:bed
 - dwc:member
@@ -494,7 +545,7 @@ Possible lithostratigraphic fields to look at:
 - dwc:latestEraOrHighestErathem
 - dwc:latestPeriodOrHighestSystem
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Unique values ? for...
 
 # dwc:geologicalContextID
@@ -527,7 +578,7 @@ Possible lithostratigraphic fields to look at:
 
 ### Who is contributing this data?
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Unique values ? for...
 
 # dwc:institutionCode
@@ -544,7 +595,7 @@ Possible lithostratigraphic fields to look at:
 
 ### What kind of data cleaning is conducted by aggregators?
 
-```{r warning = FALSE, message = FALSE}
+```{r}
 # Look at geopoints
 # Country cleanup?
 ```
